@@ -1,0 +1,47 @@
+accelerator:
+  displayName: TAP Python Catalog
+  description: "tap-catalog-python の App Acclerator "
+  iconUrl: https://s3.dualstack.us-east-2.amazonaws.com/pythondotorg-assets/media/community/logos/python-logo-only.png
+  tags:
+    - simple
+    - python-recipies
+  options:
+  - name: branchName
+    inputType: text
+    label: Branch-name
+    defaultValue: main
+    required: true
+    dependsOn:
+      name: interfaceType
+      value: python-simple-func-w-gitops
+  - name: ownerName
+    inputType: text
+    label: Owner-name
+    defaultValue: hirokim-vm
+    required: true
+    dependsOn:
+      name: interfaceType
+      value: python-simple-func-w-gitops
+  - name: interfaceType
+    inputType: select
+    label: Choose Python Framework
+    choices:
+    - value: python-simple-rest
+      text: "シンプルなWebアプリケーションのデプロイ"
+    - value: python-simple-func
+      text: "Functionアプリケーションのデプロイ"
+    defaultValue: python-simple-rest
+    required: true
+engine:
+  merge:
+    - include: [ "python-simple-rest/*" ]
+      condition: "#interfaceType == 'python-simple-rest'"
+    - include: [ "python-simple-func/*" ]
+      condition: "#interfaceType == 'python-simple-func'"
+      chain:
+      - type: ReplaceText
+        substitutions:
+        - text: "  - name: gitops_branch\n    value: main"
+          with: "'  - name: gitops_branch\n    value: ' + #branchName"
+        - text: "  - name: gitops_repository_owner\n    value: hirokim-vm"
+          with: "'  - name: gitops_repository_owner\n    value: ' + #ownerName"
